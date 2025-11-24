@@ -68,6 +68,8 @@ Numeric vector of probabilities, one per individual.
 \examples{
 
 detectfn <- 14   # hazard half-normal
+dim <- 2
+convex <- TRUE
 grain <- 1
 ncores <- 2
 gsbval <- matrix(c(0.2,1), nrow = 1)
@@ -75,7 +77,7 @@ cumk <- c(0,5)
 traps <- matrix(c(0,0,1,1,0,0,1,1,0,0), ncol = 2) - 0.5
 mask <- as.matrix(expand.grid(x=-2:2, y=-2:2))
 
-gkhk <- makegkPolygoncpp(detectfn, dim, TRUE, grain, ncores, gsbval, cumk, traps, mask)
+gkhk <- makegkPolygoncpp(detectfn, dim, convex, grain, ncores, gsbval, cumk, traps, mask)
 
 
 nc <- 0
@@ -88,6 +90,6 @@ group <- rep(1,nc)
 #start
 
 #polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
-#    group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
+    group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
 
 }
