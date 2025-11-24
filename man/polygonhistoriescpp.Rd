@@ -1,12 +1,18 @@
 \name{polygonhistoriescpp}
 \alias{polygonhistoriescpp}
+\alias{polygonfxicpp}
 
 \title{Probability of Polygon Capture Histories}
 
 \description{
 
-Core function for the contribution of individual histories to likelihood.
-Called by internal secr function 'generalsecrloglik'.
+\code{polygonhistoriescpp} is the core function for the contribution of 
+individual histories to likelihood. It is called by internal secr function 
+'generalsecrloglik'.
+
+\code{polygonfxicpp} is the core code for 'fxi' calculations in 'secr' when 
+the detector type is polygon or transect based. It is called by the internal 
+secr function 'allhistpolygonfxi'.
 
 }
 
@@ -14,6 +20,9 @@ Called by internal secr function 'generalsecrloglik'.
 
 polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
     group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
+    
+polygonfxicpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+    group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex)
 
 }
 
@@ -55,7 +64,12 @@ occasion. 'xy' records the location of each positive detection.
 
 \value{
 
+For \code{polygonhistoriescpp} --   
 Numeric vector of probabilities, one per individual.
+
+For \code{polygonfxicpp} --  
+Numeric matrix with probability density for each individual (rows) 
+at each mask point (columns).
 
 }
 
