@@ -43,7 +43,7 @@ struct hdotpoly : public Worker {
           cumk(cumk), markocc(markocc), trapsR(traps), xyR(xy), TskR(Tsk), 
           hdot(hdot) {
         
-        nk = cumk.size()-1;
+        nk = cumk.size()-1;   // zero terminated so ignore last
         npar = gsb.size();
         ss = Tsk.ncol();
         
