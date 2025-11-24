@@ -19,7 +19,35 @@ using namespace Rcpp;
 // 1-D code using Numer::integrate Func
 //------------------------------------------------------------------------------
 
-// rpoint defined in secr.h
+// rpoint defined in poly.h
+
+rpoint getxycpp(
+        const double l, 
+        const std::vector<double> &cumd, 
+        const RcppParallel::RMatrix<double> &line, 
+        const int n1, 
+        const int n2) {
+    // return the xy coordinates of point l metres along a transect 
+    // n1 is the starting position for this transect within 'line'
+    int j = 1;  // initialised 2022-01-18
+    double pr, d, d12;
+    rpoint xy;
+    // refined by PJ GitHub PR 2023-05-15
+    auto upper = std::upper_bound(cumd.begin() + 1,
+                                  cumd.begin() + (n2 - n1), l);
+    j = std::distance(cumd.begin(), upper);
+    d = l - cumd[j-1];  // distance along leg 
+    d12 = cumd[j] - cumd[j-1];
+    if (d12>0)
+        pr = d / d12;
+    else
+        pr = 0;
+    
+    j = j+n1;
+    xy.x = line(j-1,0) + (line(j,0) - line(j-1,0)) * pr;
+    xy.y = line(j-1,1) + (line(j,1) - line(j-1,1)) * pr;
+    return(xy);
+}
 
 class fx1func: public Numer::Func
 {

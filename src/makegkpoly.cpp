@@ -82,6 +82,23 @@ struct Hckmpoly : public Worker {
   }
 };
 
+//' makegkPolygoncpp (List return type)
+//'
+//' A longer description goes here.
+//' A longer description goes here.
+//' 
+//' @param detectfn The input argument (type: const int detectfn).
+//' @param dim The input argument (type: const int dim).
+//' @param convex The input argument (type: const bool convex).
+//' @param grain The input argument (type: const int grain).
+//' @param const int ncores The input argument (type: const int ncores).
+//' @param const int ncores The input argument (type: const int ncores).
+//' @param const NumericMatrix& gsbval The input argument (type: const NumericMatrix& gsbval).
+//' @param cumk The input argument (type: const IntegerVector& cumk).
+//' @param const NumericMatrix& traps The input argument (type: const NumericMatrix& traps).
+//' @param const NumericMatrix& mask The input argument (type: const NumericMatrix& mask).
+//' @return An R list (based on C++ return type: List).
+//' @export
 // [[Rcpp::export]]
 List makegkPolygoncpp (const int detectfn, 
                        const int dim,
@@ -92,8 +109,8 @@ List makegkPolygoncpp (const int detectfn,
                        const IntegerVector& cumk,
                        const NumericMatrix& traps,
                        const NumericMatrix& mask
-) 
-{
+) {
+    
   NumericVector H(gsbval.nrow()); 
   NumericVector gk(gsbval.nrow() * (cumk.size()-1) * mask.nrow()); 
   NumericVector hk(gsbval.nrow() * (cumk.size()-1) * mask.nrow()); 

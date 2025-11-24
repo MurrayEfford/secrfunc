@@ -1,65 +1,16 @@
-# 2024-01-31, 2025-11-21
-
 import (RcppNumerical)
-import (secr)
-
-# Base R
-
-importFrom (graphics, .filled.contour, contour, lines, points, legend, par)
-importFrom (grDevices, chull, contourLines, rainbow)
-importFrom (methods, as, is, Ops, Math)
-importFrom (stats, approx, as.formula, coef, dpois, nlm, optim, optimise, pgamma, 
-            qnorm, qpois, sd, terms, uniroot, update, update.formula, var)
-importFrom (utils, flush.console, head, packageDescription, packageVersion)   
-
-# Other packages
-
-importFrom (MASS, 
-    ginv)
-
-importFrom (nlme, 
-    fdHess)
-
-importFrom (mgcv, 
-    gam, 
-    s, 
-    te, 
-    formula.gam, 
-    predict.gam)
-
-importFrom (Rcpp, 
-    evalCpp)
-
 importFrom (RcppParallel, 
     RcppParallelLibs, 
     setThreadOptions, 
     defaultNumThreads)
+importFrom (Rcpp, 
+    evalCpp)
 
-importFrom(sf, 
-    st_as_sf, 
-    st_as_sfc, 
-    st_bbox, 
-    st_cast,
-    st_distance, 
-    st_geometry, 
-    st_geometry_type, 
-    st_linestring, 
-    st_nearest_feature, 
-    st_polygon,
-    st_sf,
-    st_sfc)
+export(hdotpolycpp)
+export(makegkPolygoncpp)
+export(polygonfxicpp)
+export(polygonhistoriescpp)
+importFrom(Rcpp,loadRcppModules)
+importFrom(Rcpp,sourceCpp)
 
-export (secrpoly.fit)
-
-S3method(fxi, secrpoly)
-S3method(fxTotal, secrpoly)
-S3method(derived, secrpoly)
-S3method(esa, secrpoly)
-
-# export (esaPlot)
-export (pdotPoly)
-export (pdotPolyContour)
-
-useDynLib (secrpoly)
-## DEBUGGING ONLY (cpp functions not documented)
-## exportPattern("*cpp")
+useDynLib(secrfunc, .registration = TRUE)

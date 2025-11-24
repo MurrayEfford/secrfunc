@@ -1,8 +1,7 @@
-development.txt
-proposal.txt
 ^.*\.Rproj$
 ^\.Rproj\.user$
 .build.timestamp
+.Rhistory
 ONEWS
 src\*.o
 revdep
@@ -11,5 +10,3 @@ extracpp
 extraman
 README.md
 ^\.github$
-^sourcecode.R$
-^testing.R$

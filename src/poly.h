@@ -10,9 +10,9 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::depends(RcppNumerical)]]
+
 // next two lines must be in order (RcppNumerical precedes other)
 #include <RcppNumerical.h>
-
 #include <Rcpp.h>
 #include <RcppParallel.h>
 
@@ -110,12 +110,6 @@ bool anyb (
     const Rcpp::NumericMatrix &gsb0val);
 
 // miscellaneous functions
-
-bool insidecpp (
-    const Rcpp::NumericVector &xy,
-    const int    n1,
-    const int    n2,
-    const Rcpp::NumericMatrix &poly);
 
 //---------------------------------------------------------------
     // Return probability individual n belongs to class x. This may be binary 
