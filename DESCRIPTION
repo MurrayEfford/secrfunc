@@ -25,6 +25,7 @@ Suggests:
     rmarkdown,
     testthat
 LinkingTo: 
+    BH,
     Rcpp, 
     RcppEigen, 
     RcppNumerical, 
