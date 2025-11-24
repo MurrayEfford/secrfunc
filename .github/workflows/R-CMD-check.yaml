@@ -61,7 +61,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           # Gemini says add 2025-11-24
-          cache-version: 0
+          cache-key: v1
       # Gemini says remove 2025-11-24      needs: check
 
       - uses: r-lib/actions/check-r-package@v2
