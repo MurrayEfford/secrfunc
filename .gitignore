@@ -8,8 +8,5 @@ src/*.dll
 ^sourcecode.R$
 ^testing.R$
 ^secrpoly.Rproj$
-extraR
-extracpp
-extraman
 proposal.txt
 *.Rproj

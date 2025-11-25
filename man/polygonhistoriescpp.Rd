@@ -38,7 +38,7 @@ polygonfxicpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start,
 \item{w}{3-D integer array of capture histories (individual x occasion x detector)}
 \item{xy}{2-column matrix of detection location coordinates}
 \item{start}{integer vector of index of row in xy for each first detection}
-\item{group}{integer vector; code for group of each individual}
+\item{group}{integer vector; code for group of each individual (zero-based)}
 
 \item{hk}{numeric array of detection hazards from makegkPolygoncpp}
 \item{H}{numeric unbounded integrated hazard from radial function from makegkPolygoncpp}
@@ -81,29 +81,37 @@ at each mask point (columns).
 
 \examples{
 
+datafilename <- system.file("extdata/testdata.RData", package = "secrfunc")
+load(datafilename)  # loads w, dimw, xy, start, traps, mask, gsbval, cumk, binomN
+
 detectfn <- 14   # hazard half-normal
 dim <- 2
 convex <- TRUE
 grain <- 1
 ncores <- 2
-gsbval <- matrix(c(0.2,1), nrow = 1)
-cumk <- c(0,5)   
-traps <- matrix(c(0,0,1,1,0,0,1,1,0,0), ncol = 2) - 0.5
-mask <- as.matrix(expand.grid(x=-2:2, y=-2:2))
 
 gkhk <- makegkPolygoncpp(detectfn, dim, convex, grain, ncores, gsbval, cumk, traps, mask)
+# see tests for expected result
 
+nc      <- dimw[1]  # individuals
+S       <- dimw[2]  # occasions
+K       <- dimw[3]  # single polygon
+minp    <- 1e-200
+group   <- rep(0,nc)
+pID     <- matrix(1, nrow = S, ncol = 1)
+density <- matrix(1/nrow(mask), nrow(mask), 1)
+PIA     <- as.integer(array (1, dim = c(nc, S, K)))
+Tsk     <- matrix(1, nrow = K, ncol = S)
+h       <- matrix(-1)
+hindex  <- matrix(-1)
+debug   <- FALSE
 
-nc <- 0
-minp <- 1e-200
-binomN <- 1
-group <- rep(1,nc)
-
-#w
-#xy
-#start
-
-#polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+prw <- polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
     group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
+# see tests for expected result
+
+fxi <- polygonfxicpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+    group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex)
+# see tests for expected result
 
 }

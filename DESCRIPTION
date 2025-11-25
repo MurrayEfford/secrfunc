@@ -7,7 +7,8 @@ Description: This package provides some functions used internally by the spatial
   capture-recapture package 'secr'. The idea is to speed up the installation of 
   'secr' itself, and possibly reduce its size. Initially the functions are those 
   for area and transect search that use numerical integration code from 
-  RcppNumerical and RcppEigen.
+  RcppNumerical and RcppEigen. The functions are not intended to be user-friendly 
+  and require considerable pre-processing of data.
 Authors@R: c(person("Murray", "Efford", 
     email = "murray.efford@otago.ac.nz", 
     role = c("aut","cre"), 

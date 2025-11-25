@@ -29,10 +29,6 @@ makegkPolygoncpp(detectfn, dim, convex, grain, ncores, gsbval, cumk, traps, mask
 
 }
 
-\details{
-
-}
-
 \value{
 
 List with components
