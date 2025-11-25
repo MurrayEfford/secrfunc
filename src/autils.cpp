@@ -7,15 +7,6 @@ double minimumexp = -100;
 
 //--------------------------------------------------------------------------
 
-double expmin (double x)
-{
-    if (x < minimumexp)
-        return(0);
-    else
-        return(exp(x));
-}
-//--------------------------------------------------------------------------
-
 // index to vector element corresponding to cell i,j,k in 3D array
 // stored in column-major order 
 
@@ -52,42 +43,6 @@ double gbinom(int count, int size, double p)
     return (x);   
 }
 //--------------------------------------------------------------------------
-
-// use distance1 rather than distance because of clash with std::distance
-double distance1 (const rpoint p1, const rpoint p2) {
-    return(std::sqrt ((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y)));
-}
-//--------------------------------------------------------------------------
-
-double zrcpp (double r, int detectfn, NumericVector par)
-{
-    if (detectfn == 14) {  // hazard halfnormal
-        return (exp(-r*r / 2 / par(1) / par(1)));    
-    }
-    else {
-        if (detectfn == 15) {  // hazard hazard rate
-            return (1 - exp(- pow(r /par(1), - par(2))));
-        }
-        else if (detectfn == 16) {  // hazard exponential
-            return (exp(-r / par(1)));
-        }
-        else if (detectfn == 17) {  // hazard annular normal
-            return (exp(-(r-par(2))*(r-par(2)) / 
-                    2 / par(1)/ par(1)));
-        }
-        else if (detectfn == 18) {  // hazard cumulative gamma
-            // return (R::pgamma(r,par(2),par(1)/par(2),0,0)); 
-            boost::math::gamma_distribution<> gam(par(2),par(1)/par(2));
-            return (boost::math::cdf(complement(gam,r))); 
-        }
-        else if (detectfn == 19) {  // hazard variable power
-            return (exp(- pow(r /par(1), par(2))));
-        }
-        else 
-            return (R_NaN);  //Rcpp::stop("unknown or invalid detection function in zrcpp"));
-    }
-}
-
 
 // Calculate the length of intersection of a line segment and a circle
 // Based on C code of Paul Bourke November 1992
@@ -218,35 +173,6 @@ double SegCircle2 (
 
 //----------------------------------------------------------------
 
-// return probability g(r) for given detection function fn 
-// used in simsecr.cpp and trapping.cpp 
-// double gr (
-//         const int fn,
-//         const Rcpp::NumericVector gsb,
-//         const rpoint xy,
-//         const rpoint animal) {
-//     double r;
-//     fnptrC fnp;
-//     fnp = getgfns(fn);
-//     r = distance1 (xy, animal);
-//     return (fnp(as<std::vector<double>>(gsb),r));
-// }
-//----------------------------------------------------------------
-
-
-// double hazard (double pp) {
-//     if (pp > (1-fuzz))  // pp close to 1.0 - approx limit 
-//         pp = huge;      // g0 very large (effecti inf hazard) 
-//     else {
-//         if (pp <= 0) 
-//             pp = 0;
-//         else 
-//             pp = -log(1-pp);
-//     }
-//     return(pp);
-// }
-//=============================================================
-
 // detect may take values -
 // 0  multi-catch traps
 // 1  binary proximity detectors
@@ -259,147 +185,6 @@ double SegCircle2 (
 // 8  times  (undocumented)
 // 9  cue    (undocumented) -- removed in secr 2.10.0
 // 12 signalnoise
-
-
-//--------------------------------------------------------------------------
-
-// Functions to characterize detector type 
-// polygon, transect and signal detector types must be constant 
-// across occasions 
-
-bool anyexclusive (const IntegerVector detect) {
-    bool exclusive = false;
-    for (int s=0; s< detect.size(); s++) {
-        if ((detect[s]==0) || (detect[s]==3) || (detect[s]==4))
-            exclusive = true;
-    }
-    return exclusive;
-}
-
-bool anycapped  (const IntegerVector detect) {
-    bool capped = false;
-    for (int s=0; s<detect.size(); s++) {
-        if (detect[s]==8)
-            capped = true;
-    }
-    return capped;
-}
-
-bool anypolygon  (const IntegerVector detect) {
-    bool polygon = false;
-    for (int s=0; s<detect.size(); s++) {
-        if ((detect[s]==3) || (detect[s]==6) )
-            polygon = true;
-    }
-    return polygon;
-}
-
-bool anytransect (const IntegerVector detect) {
-    bool transect = false;
-    for (int s=0; s<detect.size(); s++) {
-        if ((detect[s]==4) || (detect[s]==7))
-            transect = true;
-    }
-    return transect;
-}
-
-bool anysignal (const IntegerVector detect) {
-    bool signal = false;
-    for (int s=0; s<detect.size(); s++) {
-        if ((detect[s]==5) || (detect[s]==12))
-            signal = true;
-    }
-    return signal;
-}
-
-bool anytelemetry (const IntegerVector detect) {
-    bool telemetry = false;
-    for (int s=0; s<detect.size(); s++) {
-        if (detect[s]==13)
-            telemetry = true;
-    }
-    return telemetry;
-}
-
-//  check if we need to consider variation among individuals 
-// i.e. check if detection parameters constant for given s,k 
-bool anyvarying (
-        const int    nc,     // number of capture histories (or groups if PIA0 has that dim) 
-        const int    ss,     // number of occasions 
-        const int    nk,     // number of traps 
-        const int    nmix,   // number of mixture classes 
-        const IntegerVector &PIA0  // lookup which g0/sigma/b combination to use for given n, S, K [naive] 
-) {
-    int i,n,s,k,x;
-    int wxi;
-    bool indiv = false;
-    for (s=0; s<ss; s++) {
-        for (k=0; k<nk; k++) {
-            for (x=0; x<nmix; x++) {
-                wxi = i4(0,s,k,x,nc,ss,nk);       
-                i = PIA0[wxi];
-                for (n=1; n<nc; n++) {
-                    wxi = i4(n,s,k,x,nc,ss,nk);    
-                    if (i != PIA0[wxi]) {
-                        indiv = true; break;
-                    }
-                }
-            }
-        }
-    }
-    return(indiv);
-}
-//--------------------------------------------------------------------
-
-bool alltelemetry (const IntegerVector detect) {
-    bool telemetry = true;
-    for (int s=0; s<detect.size(); s++) {
-        if ((detect[s]!=13))
-            telemetry = false;
-    }
-    return telemetry;
-}
-
-bool allpoint (const IntegerVector detect, bool allowsignal, bool allowtelem) {
-    bool point;
-    bool OK = true;
-    for (int s=0; s<detect.size(); s++) {
-        point = (detect[s]==0) || (detect[s]==1) || (detect[s]==2) || detect[s] == 8
-        || (detect[s]==10) || (detect[s]==11)
-        || (allowsignal && ((detect[s]==5) || (detect[s]==12)))
-        || (allowtelem && ((detect[s]==13)));
-        OK = OK && point;
-    }
-    return OK;
-}
-
-bool allcapped  (const IntegerVector detect) {
-    bool OK = true;
-    for (int s=0; s<detect.size(); s++) {
-        OK = OK && (detect[s] == 8);
-    }
-    return OK;
-}
-
-bool allmulti (const IntegerVector detect) {
-    bool notmulti = false;
-    for (int s=0; s<detect.size(); s++) {
-        if (detect[s]!=0)
-            notmulti = true;
-    }
-    return (!notmulti);
-}
-//--------------------------------------------------------------------
-
-// Do parameter values for naive animals differ at all from those for other animals ?
-bool anyb (const NumericMatrix &gsbval, const NumericMatrix &gsb0val) {
-    bool identical = true;
-    for (int i=0; i<gsbval.size(); i++) {
-        if (gsbval[i] != gsb0val[i]) identical = false;
-    }
-    return (!identical);
-}
-//==============================================================================
 
 
 // probability of count for session s, detector k, animal i
@@ -449,37 +234,6 @@ double pski ( int binomN,
     else result = NAN; // Rcpp::stop("binomN < -1 not allowed");  // code multi -2 separately
     
     return (result);
-}
-//--------------------------------------------------------------------------
-
-double classmembership (
-        const int n, 
-        const int x, 
-        const IntegerVector &knownclass, 
-        const std::vector<double> &pmixn, 
-        const int nmix) {
-    
-    // Return probability individual n belongs to class x. This may be binary 
-    //   (0/1) in the case of known class, or continuous if class is unknown 
-    
-    double pmixnx = 0;
-    int knownx = -1;
-    
-    if (knownclass[n] == 1) 
-        knownx = -1;                         // unknown class 
-    else
-        knownx = R::imax2(0, knownclass[n]-2);  // known class 
-    
-    // unknown class : weighted by probability of membership  
-    // known class does not require probability of membership 
-    if (knownx < 0)
-        pmixnx = pmixn[nmix * n + x];
-    else if (knownx == x)
-        pmixnx = 1.0;
-    else 
-        pmixnx = 0.0;
-    return (pmixnx);
-    
 }
 //--------------------------------------------------------------------------
 
