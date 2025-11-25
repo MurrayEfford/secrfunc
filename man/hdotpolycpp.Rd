@@ -1,13 +1,13 @@
 \name{hdotpolycpp}
 \alias{hdotpolycpp}
 
-\title{Net Detection Hazard for Polygon and Transect Detectors)
+\title{Net Detection Hazard for Polygon and Transect Detectors
 }
 
 \description{
 
 Compute spatially explicit net probability of detection for individual(s) at 
-given coordinates. Used by secr function \code{pdot}.
+given coordinates. Used by \code{secr::pdot()}.
 
 }
 
@@ -29,7 +29,7 @@ hdotpolycpp(xy, traps, Tsk, markocc, cumk, detectfn, gsb, convex, dim, grain, nc
 
 \item{cumk}{integer vector of start indices of vertices for each detector}
 
-\item{detectfn}{integer detector code (see secr)}
+\item{detectfn}{integer detector code (see \pkg{secr})}
 
 \item{gsb}{numeric vector of real parameter values (lambda0, sigma)}
 

@@ -7,12 +7,12 @@
 \description{
 
 \code{polygonhistoriescpp} is the core function for the contribution of 
-individual histories to likelihood. It is called by internal secr function 
-'generalsecrloglik'.
+individual histories to likelihood. It is called by internal \pkg{secr} function 
+\code{generalsecrloglik()}.
 
-\code{polygonfxicpp} is the core code for 'fxi' calculations in 'secr' when 
+\code{polygonfxicpp} is the core code for 'fxi' calculations in \pkg{secr} when 
 the detector type is polygon or transect based. It is called by the internal 
-secr function 'allhistpolygonfxi'.
+\pkg{secr} function \code{allhistpolygonfxi}.
 
 }
 

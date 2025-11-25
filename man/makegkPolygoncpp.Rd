@@ -6,6 +6,7 @@
 \description{
 
 Hazards and probabilities are computed for each parameter combination, detector and mask point.
+Used by \pkg{secr} internal functions \code{generalsecrloglik()} and \code{secr_makegk()}.
 
 }
 
@@ -15,7 +16,7 @@ makegkPolygoncpp(detectfn, dim, convex, grain, ncores, gsbval, cumk, traps, mask
 
 \arguments{
 
-\item{detectfn}{integer detector code (see secr)}
+\item{detectfn}{integer detector code (see \pkg{secr})}
 \item{dim}{integer; 1 = transect, 2 = polygon}
 \item{convex}{logical; if TRUE all detector polygons are convex}
 

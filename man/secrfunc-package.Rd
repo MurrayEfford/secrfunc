@@ -4,13 +4,13 @@
 
 \docType{package}
 
-\title{Helper Functions for Package 'secr' }
+\title{Helper Functions for Package \pkg{secr} }
 
 \description{
 
 This package provides some functions used internally by the spatial 
-  capture-recapture package 'secr' (from version 5.4.0). The idea is to speed up
-  the installation of 'secr', and possibly reduce its size. Initially the 
+  capture-recapture package \pkg{secr} (from version 5.4.0). The idea is to speed up
+  the installation of \pkg{secr}, and possibly reduce its size. Initially the 
   functions are those for area and transect search that use numerical integration 
   code from RcppNumerical (Qiu et al. 2023) and RcppEigen. 
   

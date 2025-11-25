@@ -2,13 +2,13 @@ Package: secrfunc
 Type: Package
 Title: Helper Functions for Package 'secr'
 Version: 1.0.0
-Date: 2025-11-25
-Description: This package provides some functions used internally by the spatial 
-  capture-recapture package 'secr'. The idea is to speed up the installation of 
-  'secr' itself, and possibly reduce its size. Initially the functions are those 
-  for area and transect search that use numerical integration code from 
-  RcppNumerical and RcppEigen. The functions are not intended to be user-friendly 
-  and require considerable pre-processing of data.
+Date: 2025-11-26
+Description: Functions are provided for internal use by the spatial 
+  capture-recapture package 'secr' (from version 5.4.0). The idea is to speed up 
+  the installation of 'secr', and possibly reduce its size. Initially the functions 
+  are those for area and transect search that use numerical integration code from 
+  'RcppNumerical' and 'RcppEigen'. The functions are not intended to be user-friendly 
+  and require considerable preprocessing of data.
 Authors@R: c(person("Murray", "Efford", 
     email = "murray.efford@otago.ac.nz", 
     role = c("aut","cre"), 
