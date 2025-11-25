@@ -9,10 +9,10 @@
 \description{
 
 This package provides some functions used internally by the spatial 
-  capture-recapture package 'secr'. The idea is to speed up the installation of 
-  'secr' itself, and possibly reduce its size. Initially the functions are those 
-  for area and transect search that use numerical integration code from 
-  RcppNumerical (Qiu et al. 2023) and RcppEigen. 
+  capture-recapture package 'secr' (from version 5.4.0). The idea is to speed up
+  the installation of 'secr', and possibly reduce its size. Initially the 
+  functions are those for area and transect search that use numerical integration 
+  code from RcppNumerical (Qiu et al. 2023) and RcppEigen. 
   
   The functions are not intended to be user-friendly and require considerable 
   pre-processing of data. Examples and tests use data pre-formatted and saved 
@@ -45,7 +45,7 @@ explicit capture--recapture with area searches. \emph{Ecology}
 \bold{92}, 2202--2207.
 
 Efford, M. G. (2025) The SECR book. A handbook of spatially explicit 
-capture--recapture methods. Version 1.0.1. Zenodo \url{https://doi.org/10.5281/zenodo.15109938}.
+capture--recapture methods. Version 1.0.1. Zenodo \doi{10.5281/zenodo.15109938}.
 Online at \url{https://murrayefford.github.io/SECRbook/}. 
 
 Qiu, Y., Balan, S., Beall, M., Sauder, M., Okazaki, N., and Hahn, T. (2023). RcppNumerical: 'Rcpp'
