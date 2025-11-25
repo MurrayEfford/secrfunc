@@ -1,16 +1,10 @@
 import (RcppNumerical)
 importFrom (RcppParallel, 
-    RcppParallelLibs, 
-    setThreadOptions, 
-    defaultNumThreads)
+    RcppParallelLibs)
 importFrom (Rcpp, 
     evalCpp)
-
 export(hdotpolycpp)
 export(makegkPolygoncpp)
 export(polygonfxicpp)
 export(polygonhistoriescpp)
-importFrom(Rcpp,loadRcppModules)
-importFrom(Rcpp,sourceCpp)
-
 useDynLib(secrfunc, .registration = TRUE)
