@@ -44,14 +44,16 @@ test_that("correctly computed gkhk", {
 nc      <- dimw[1]  # individuals
 S       <- dimw[2]  # occasions
 K       <- dimw[3]  # single polygon
+m       <- nrow(mask)
 minp    <- 1e-200
 group   <- rep(0,nc)
 pID     <- matrix(1, nrow = S, ncol = 1)
-density <- matrix(1/nrow(mask), nrow(mask), 1)
+density <- matrix(1/m, m, 1)
 PIA     <- as.integer(array (1, dim = c(nc, S, K)))
 Tsk     <- matrix(1, nrow = K, ncol = S)
 h       <- matrix(-1)
 hindex  <- matrix(-1)
+
 debug   <- FALSE
 
 test_that("correctly computed prw", {
@@ -61,6 +63,21 @@ test_that("correctly computed prw", {
     expect_equal(prw, c(0.00267240, 0.00407618, 0.02350034, 0.02881529, 0.00893066,
                         0.01947464, 0.00730938, 0.01595762, 0.02161582, 0.00832001,
                         0.02531177), tolerance = 1e-5, check.attributes = FALSE)
+})
+
+mask_indices <- 0:(m-1)
+mask_offsets <- c(0,m)
+mask_id      <- rep(0,nc)
+
+test_that("correctly computed log(prw)", {
+    lnprw <- polygonhistories2cpp(
+        nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+        group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
+        mask_indices, mask_offsets, mask_id,
+        debug)
+    expect_equal(lnprw, log(c(0.00267240, 0.00407618, 0.02350034, 0.02881529, 0.00893066,
+                        0.01947464, 0.00730938, 0.01595762, 0.02161582, 0.00832001,
+                        0.02531177)), tolerance = 1e-5, check.attributes = FALSE)
 })
 
 test_that("correctly computed fxi", {

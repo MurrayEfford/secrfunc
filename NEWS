@@ -1,3 +1,9 @@
+Changes in version 1.1.0 (2026-06-09)
+
+Other
+    o   polygonhistories2cpp is variant of polygonhistoriescpp that 
+        returns log(prwi)
+    
 Changes in version 1.0.0 (2025-11-26)
 
 New features or changed behaviour of old functions

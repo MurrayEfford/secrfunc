@@ -1,8 +1,8 @@
 Package: secrfunc
 Type: Package
 Title: Helper Functions for Package 'secr'
-Version: 1.0.0
-Date: 2025-11-26
+Version: 1.1.0
+Date: 2026-06-09
 Description: Functions are provided for internal use by the spatial 
   capture-recapture package 'secr' (from version 5.4.0). The idea is to speed up 
   the installation of 'secr', and possibly reduce its size. Initially the functions 

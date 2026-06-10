@@ -12,7 +12,7 @@ This package provides some functions used internally by the spatial
   capture-recapture package \pkg{secr} (from version 5.4.0). The idea is to speed up
   the installation of \pkg{secr}, and possibly reduce its size. Initially the 
   functions are those for area and transect search that use numerical integration 
-  code from RcppNumerical (Qiu et al. 2023) and RcppEigen. 
+  code from RcppNumerical (Qiu et al. 2026) and RcppEigen. 
   
   The functions are not intended to be user-friendly and require considerable 
   pre-processing of data. Examples and tests use data pre-formatted and saved 
@@ -25,8 +25,8 @@ This package provides some functions used internally by the spatial
 \tabular{ll}{
 Package: \tab secrfunc\cr
 Type: \tab Package\cr
-Version: \tab 1.0.0\cr
-Date: \tab 2025-11-26\cr
+Version: \tab 1.1.0\cr
+Date: \tab 2026-06-09\cr
 License: \tab GNU General Public License Version 2 or later\cr
 }
 
@@ -48,8 +48,8 @@ Efford, M. G. (2025) The SECR book. A handbook of spatially explicit
 capture--recapture methods. Version 1.0.1. Zenodo \doi{10.5281/zenodo.15109938}.
 Online at \url{https://murrayefford.github.io/SECRbook/}. 
 
-Qiu, Y., Balan, S., Beall, M., Sauder, M., Okazaki, N., and Hahn, T. (2023). RcppNumerical: 'Rcpp'
-  Integration for Numerical Computing Libraries. R package version 0.6-0.
+Qiu, Y., Balan, S., Beall, M., Sauder, M., Okazaki, N., and Hahn, T. (2026). RcppNumerical: 'Rcpp'
+  Integration for Numerical Computing Libraries. R package version 0.7-0.
   \url{https://CRAN.R-project.org/package=RcppNumerical}
 }
 
@@ -60,6 +60,7 @@ Qiu, Y., Balan, S., Beall, M., Sauder, M., Okazaki, N., and Hahn, T. (2023). Rcp
 \code{\link{hdotpolycpp}} \cr 
 \code{\link{makegkPolygoncpp}}  \cr
 \code{\link{polygonhistoriescpp}}  \cr
+\code{\link{polygonhistories2cpp}}  \cr
 \code{\link{polygonfxicpp}} 
 
 }

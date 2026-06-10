@@ -1,5 +1,6 @@
 \name{polygonhistoriescpp}
 \alias{polygonhistoriescpp}
+\alias{polygonhistories2cpp}
 \alias{polygonfxicpp}
 
 \title{Probability of Polygon Capture Histories}
@@ -9,6 +10,9 @@
 \code{polygonhistoriescpp} is the core function for the contribution of 
 individual histories to likelihood. It is called by internal \pkg{secr} function 
 \code{generalsecrloglik()}.
+
+\code{polygonhistories2cpp} is an updated version that returns logarithms 
+for consistency with secr 5.5.
 
 \code{polygonfxicpp} is the core code for 'fxi' calculations in \pkg{secr} when 
 the detector type is polygon or transect based. It is called by the internal 
@@ -20,6 +24,10 @@ the detector type is polygon or transect based. It is called by the internal
 
 polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
     group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
+    
+polygonhistories2cpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+    group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
+    mask_indices, mask_offsets, mask_id, debug)
     
 polygonfxicpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
     group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex)
@@ -51,6 +59,11 @@ polygonfxicpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start,
 \item{Tsk}{detector usage (numeric matrix detectors x occasions)}
 \item{h}{for exclusive detectors, pre-computed hazard; otherwise -1}
 \item{hindex}{for exclusive detectors, index to precomputed hazard; otherwise -1}
+
+\item{mask_indices}{integer vector}
+\item{mask_offsets}{integer vector}
+\item{mask_id}{integer vector}
+
 \item{debug}{logical; if TRUE...}
 
 }
@@ -66,6 +79,9 @@ occasion. 'xy' records the location of each positive detection.
 
 For \code{polygonhistoriescpp} --   
 Numeric vector of probabilities, one per individual.
+
+For \code{polygonhistories2cpp} --   
+Numeric vector of log probabilities, one per individual.
 
 For \code{polygonfxicpp} --  
 Numeric matrix with probability density for each individual (rows) 

@@ -5,29 +5,16 @@ hdotpolycpp <- function(xy, traps, Tsk, markocc, cumk, detectfn, gsb, convex, di
     .Call(`_secrfunc_hdotpolycpp`, xy, traps, Tsk, markocc, cumk, detectfn, gsb, convex, dim, grain, ncores)
 }
 
-#' makegkPolygoncpp (List return type)
-#'
-#' A longer description goes here.
-#' A longer description goes here.
-#' 
-#' @param detectfn The input argument (type: const int detectfn).
-#' @param dim The input argument (type: const int dim).
-#' @param convex The input argument (type: const bool convex).
-#' @param grain The input argument (type: const int grain).
-#' @param const int ncores The input argument (type: const int ncores).
-#' @param const int ncores The input argument (type: const int ncores).
-#' @param const NumericMatrix& gsbval The input argument (type: const NumericMatrix& gsbval).
-#' @param cumk The input argument (type: const IntegerVector& cumk).
-#' @param const NumericMatrix& traps The input argument (type: const NumericMatrix& traps).
-#' @param const NumericMatrix& mask The input argument (type: const NumericMatrix& mask).
-#' @return An R list (based on C++ return type: List).
-#' @export
 makegkPolygoncpp <- function(detectfn, dim, convex, grain, ncores, gsbval, cumk, traps, mask) {
     .Call(`_secrfunc_makegkPolygoncpp`, detectfn, dim, convex, grain, ncores, gsbval, cumk, traps, mask)
 }
 
 polygonhistoriescpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug) {
     .Call(`_secrfunc_polygonhistoriescpp`, nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
+}
+
+polygonhistories2cpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug) {
+    .Call(`_secrfunc_polygonhistories2cpp`, nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug)
 }
 
 polygonfxicpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex) {
