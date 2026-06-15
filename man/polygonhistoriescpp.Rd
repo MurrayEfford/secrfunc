@@ -25,7 +25,7 @@ the detector type is polygon or transect based. It is called by the internal
 polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
     group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
     
-polygonhistories2cpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+polygonhistories2cpp(nc, detectfn, grain, ncores, safeLL, minp, binomN, w, xy, start, 
     group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
     mask_indices, mask_offsets, mask_id, debug)
     
@@ -40,6 +40,7 @@ polygonfxicpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start,
 \item{detectfn}{integer detector code (see secr)}
 \item{grain}{integer grain argument of RcppParallel::parallelFor}
 \item{ncores}{integer number of threads}
+\item{safeLL}{logical; if TRUE the LSE trick is used to improve robustness}
 \item{minp}{double minimum probability}
 
 \item{binomN}{integer vector binomial code}
