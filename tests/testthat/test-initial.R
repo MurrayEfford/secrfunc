@@ -1,6 +1,6 @@
 ## Started 2025-11-25
 library(secrfunc)
-
+#library(testthat)
 ## to avoid ASAN/UBSAN errors on CRAN, following advice of Kevin Ushey
 ## e.g. https://github.com/RcppCore/RcppParallel/issues/169
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
@@ -68,10 +68,11 @@ test_that("correctly computed prw", {
 mask_indices <- 0:(m-1)
 mask_offsets <- c(0,m)
 mask_id      <- rep(0,nc)
+safeLL       <- FALSE
 
 test_that("correctly computed log(prw)", {
     lnprw <- polygonhistories2cpp(
-        nc, detectfn, grain, ncores, minp, binomN, w, xy, start, 
+        nc, detectfn, grain, ncores, safeLL, minp, binomN, w, xy, start, 
         group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
         mask_indices, mask_offsets, mask_id,
         debug)
