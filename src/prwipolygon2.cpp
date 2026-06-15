@@ -10,314 +10,332 @@ using namespace RcppParallel;
 // 2026-06-10 add mask_indices etc. for individual masks
 
 struct polygonhistories2 : public Worker {
-  // input data
-  const int             nc;
-  const int             detectfn;
-  const int             grain;
-  const double          minp;
-  const RVector<int>    binomN;   // s
-  const RVector<int>    w;        // n x s x k
-  const RMatrix<double> xy;
-  const RVector<int>    start;    // starting position in xy of detections of animal i,s,k
-  const RVector<int>    group;    // n
-  const RVector<double> hk;
-  const RVector<double> H;
-  const RMatrix<double> gsbval;
-  const RMatrix<double> pID;
-  const RMatrix<double> mask;
-  const RMatrix<double> density;  // n x g
-  const RVector<int>    PIA;      // 1,n,s,k,x
-  const RMatrix<double> Tsk; 
-  const RMatrix<double> h;
-  const RMatrix<int>    hindex;
-  const RVector<int>    mask_indices;
-  const RVector<int>    mask_offsets;
-  const RVector<int>    mask_id;       // Maps individual to mask row
-  const int             debug;
-  
-  RVector<double> output;              // output likelihoods
-  
-  // working variables
-  int  mm, nk, ss, cc;
-  
-  
-  // Constructor to initialize an instance of Somehistories
-  // The RMatrix class can be automatically converted to from the Rcpp matrix type
-  polygonhistories2(
-    const int           nc,
-    const int           detectfn,
-    const int           grain,
-    const double        minp,
-    const IntegerVector binomN,
-    const IntegerVector w,
-    const NumericMatrix xy,
-    const IntegerVector start,
-    const IntegerVector group,
-    const NumericVector hk,
-    const NumericVector H,
-    const NumericMatrix gsbval,
-    const NumericMatrix pID,
-    const NumericMatrix mask,
-    const NumericMatrix density,
-    const IntegerVector PIA,
-    const NumericMatrix Tsk, 
-    const NumericMatrix h,
-    const IntegerMatrix hindex, 
-    const IntegerVector mask_indices, 
-    const IntegerVector mask_offsets,
-    const IntegerVector mask_id,
-    const int           debug,
+    // input data
+    const int             nc;
+    const int             detectfn;
+    const int             grain;
+    const bool            safeLL;
+    const double          minp;
+    const RVector<int>    binomN;   // s
+    const RVector<int>    w;        // n x s x k
+    const RMatrix<double> xy;
+    const RVector<int>    start;    // starting position in xy of detections of animal i,s,k
+    const RVector<int>    group;    // n
+    const RVector<double> hk;
+    const RVector<double> H;
+    const RMatrix<double> gsbval;
+    const RMatrix<double> pID;
+    const RMatrix<double> mask;
+    const RMatrix<double> density;  // n x g
+    const RVector<int>    PIA;      // 1,n,s,k,x
+    const RMatrix<double> Tsk; 
+    const RMatrix<double> h;
+    const RMatrix<int>    hindex;
+    const RVector<int>    mask_indices;
+    const RVector<int>    mask_offsets;
+    const RVector<int>    mask_id;       // Maps individual to mask row
+    const int             debug;
     
-    NumericVector output)
-    :
-    nc(nc), detectfn(detectfn), grain(grain), minp(minp), 
-    binomN(binomN), w(w), xy(xy), start(start), group(group), hk(hk), H(H), gsbval(gsbval), 
-    pID(pID), mask(mask), density(density), PIA(PIA), Tsk(Tsk),  h(h), hindex(hindex), 
-    mask_indices(mask_indices), 
-    mask_offsets(mask_offsets), 
-    mask_id(mask_id),
-    debug(debug), 
-    output(output) {
-    // now can initialise these derived counts
-    mm = mask.nrow();       // number of mask points
-    nk = Tsk.nrow();        // number of polygons (detectors)
-    ss = Tsk.ncol();        // number of occasions
-    cc = gsbval.nrow();     // number of parameter combinations
-  }
-  //==============================================================================
-  
-  double d2Rcpp (
-      const int k,
-      const int m,
-      const RMatrix<double> &A1,
-      const RMatrix<double> &A2)
-    // return squared distance between two points given by 
-    // row k in A1 and row m in A2
-  {
-    return(
-      (A1(k,0) - A2(m,0)) * (A1(k,0) - A2(m,0)) +
-        (A1(k,1) - A2(m,1)) * (A1(k,1) - A2(m,1))
-    );
-  }
-  //--------------------------------------------------------------------------
-  
-  // hazard (fn 14:19) (distance)
-  double zcpp (const int j, const int m, const int c, const RMatrix<double> &gsbval, 
-               const RMatrix<double> &xy, const RMatrix<double> &mask)
-  {
-    double r, r2;
-    r2 = d2Rcpp(j, m, xy, mask);
-    if (detectfn == 14) {  // hazard halfnormal
-      return (gsbval(c,0) *  exp(-r2 / 2 / gsbval(c,1) / gsbval(c,1)));    
+    RVector<double> output;              // output likelihoods
+    
+    // working variables
+    int  mm, nk, ss, cc;
+    
+    
+    // Constructor to initialize an instance of Somehistories
+    // The RMatrix class can be automatically converted to from the Rcpp matrix type
+    polygonhistories2(
+        const int           nc,
+        const int           detectfn,
+        const int           grain,
+        const bool          safeLL, 
+        const double        minp,
+        const IntegerVector binomN,
+        const IntegerVector w,
+        const NumericMatrix xy,
+        const IntegerVector start,
+        const IntegerVector group,
+        const NumericVector hk,
+        const NumericVector H,
+        const NumericMatrix gsbval,
+        const NumericMatrix pID,
+        const NumericMatrix mask,
+        const NumericMatrix density,
+        const IntegerVector PIA,
+        const NumericMatrix Tsk, 
+        const NumericMatrix h,
+        const IntegerMatrix hindex, 
+        const IntegerVector mask_indices, 
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,
+        const int           debug,
+        NumericVector output)
+        :
+        mm(mm), nc(nc), detectfn(detectfn), grain(grain), safeLL(safeLL), minp(minp), 
+        binomN(binomN), w(w), xy(xy), start(start), group(group), hk(hk), H(H), gsbval(gsbval), 
+        pID(pID), mask(mask), density(density), PIA(PIA), Tsk(Tsk),  h(h), hindex(hindex), 
+        mask_indices(mask_indices), 
+        mask_offsets(mask_offsets), 
+        mask_id(mask_id),
+        debug(debug), 
+        output(output) {
+        
+        // Initialise derived counts
+
+        mm = mask.nrow();
+        nk = Tsk.nrow();        // number of polygons (detectors)
+        ss = Tsk.ncol();        // number of occasions
+        cc = gsbval.nrow();     // number of parameter combinations
+        
     }
-    else {
-      r = std::sqrt(r2);
-      if (detectfn == 15) {  // hazard hazard rate
-        return (gsbval(c,0) * ( 1 - exp(- pow(r /gsbval(c,1), - gsbval(c,2)))));
-      }
-      else if (detectfn == 16) {  // hazard exponential
-        return (gsbval(c,0) * exp(-r / gsbval(c,1)));
-      }
-      else if (detectfn == 17) {  // hazard annular normal
-        return (gsbval(c,0) * exp(-(r-gsbval(c,2))*(r-gsbval(c,2)) / 
-                2 / gsbval(c,1)/ gsbval(c,1)));
-      }
-      else if (detectfn == 18) {  // hazard cumulative gamma
-        //return (gsbval(c,0) * R::pgamma(r,gsbval(c,2),gsbval(c,1)/gsbval(c,2),0,0)); 
-        boost::math::gamma_distribution<> gam(gsbval(c,2),gsbval(c,1)/gsbval(c,2));
-        return (gsbval(c,0) * boost::math::cdf(complement(gam,r))); 
-      }
-      else if (detectfn == 19) {  // hazard variable power
-        return (gsbval(c,0) * exp(- pow(r /gsbval(c,1), gsbval(c,2))));
-      }
-      else (Rcpp::stop("unknown or invalid detection function"));
+    //==============================================================================
+    
+    double d2Rcpp (
+            const int k,
+            const int m,
+            const RMatrix<double> &A1,
+            const RMatrix<double> &A2)
+        // return squared distance between two points given by 
+        // row k in A1 and row m in A2
+    {
+        return(
+            (A1(k,0) - A2(m,0)) * (A1(k,0) - A2(m,0)) +
+                (A1(k,1) - A2(m,1)) * (A1(k,1) - A2(m,1))
+        );
     }
-  }
-  
-  void prwpolygonX (const int n, std::vector<double> &pm) {
-      // Likelihood component due to capture history n (0 <= n < nc)
-      // given that animal's range centre is at m
-      // EXCLUSIVE POLYGON DETECTOR
-      {
-          int s;   // index of occasion  0 <= s < ss  
-          int k;   // index of part 0 <= k < nk  
-          int c, j, m, w2, w3, gi;
-          int m_row = mask_id[n];
-          
-          double hint, Tski, Htemp;
-          bool dead = false;
-          for (s = 0; s < ss; s++) {   // over occasions
-              w2 = s * nc + n;
-              k = w[w2]; 
-              dead = k < 0;  
-              k = abs(k)-1;         // detector number 0..nk-1; k = -1 if not caught 
-              // Not found at any detector on occasion s 
-              if (k < 0) {
-                  for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-                      m = mask_indices[j];
-                      Htemp = h(m, hindex(n,s));
-                      pm[m] -= Htemp;
-                  }
-              }
-              // detected at detector k on occasion s
-              else {
-                  w3 = i3(n, s, k, nc, ss);   
-                  c = PIA[w3] - 1;
-                  if (c >= 0) {    // ignore unused detectors 
-                      Tski = Tsk(k,s);
-                      for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-                          m = mask_indices[j];
-                          gi  = i3(c,k,m,cc,nk);
-                          Htemp = h(m, hindex(n,s));
-                          pm[m] +=  log(Tski * (1-exp(-Htemp)) *  hk[gi] / Htemp);
-                          // for each detection, pdf(xy) | detected 
-                          if (pm[m] > log(minp)) {               // avoid underflow 
-                              // retrieve hint = integral2D(zfn(x) over k)) 
-                              hint = hk[gi] / gsbval(c,0) * H[c];  
-                              pm[m] += log(zcpp(start[w3], m, c, gsbval, xy, mask) / hint);
-                          }
-                      }
-                  }
-              }
-              if (dead) break;   // out of s loop
-          }
-      }
-  }    
-  //==============================================================================
-  void prwpolygon (const int n, std::vector<double> &pm) {
-      // Likelihood component due to capture history n (0 <= n < nc)
-      // given that animal's range centre is at m
-      // POLYGON DETECTOR
-      {
-          int s;   // index of occasion  0 <= s < ss  
-          int k;   // index of part 0 <= k < nk  
-          int jxy; // index of xy record 
-          int c, j, m, w3, gi;
-          int m_row = mask_id[n];
-          long count;
-          bool dead = false;
-          double hint;
-          double Tski;
-          if (debug>0) Rprintf("starting prwpolygon\n");
-          for (s=0; s<ss; s++) {  // over occasions
-              if (binomN[s] < 0) Rcpp::stop ("negative binomN < 0 not allowed in C++ fn prwpolygon");
-              for (k=0; k<nk; k++) {   // over polygons
-                  w3 = i3(n,s,k,nc,ss);
-                  count = w[w3];
-                  dead = count<0;
-                  count = abs(count);
-                  c = PIA[w3] - 1;
-                  if (c >= 0) {                          // skip if this polygon not used 
-                      Tski = Tsk(k,s);
-                      for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-                          m = mask_indices[j];
-                          if (debug>0) Rprintf("k %d, m %d \n", k,m);
-                          gi  = i3(c,k,m,cc,nk);
-                          pm[m] += log(pski(binomN[s], count, Tski, hk[gi], 1.0));
-                          
-                          // for each detection, pdf(xy) | detected 
-                          if ((pm[m] > log(minp)) && (count>0)) {       // avoid underflow
-                              // retrieve hint = integral2D(zfn(x) over k)) OR 1-D integral
-                              hint = hk[gi] / gsbval(c,0) * H[c];  
-                              for (jxy=start[w3]; jxy < start[w3]+count; jxy++) {
-                                  pm[m] += log(zcpp(jxy, m, c, gsbval, xy, mask) / hint);
-                                  
-                              }
-                          }
-                      }
-                  }
-              }
-              if (dead==1) break;
-          }
-      }
-  }    
-  //==============================================================================
-  double onehistorycpp (int n) {
-      double lnprwi;
-      double maxpm = -huge;
-      double sumpm = 0.0;
-      int j,m;
-      int m_row = mask_id[n];
-      
-      std::vector<double> pm(mm, 0.0);
-      if (binomN[0] < 0)
-          prwpolygonX(n,pm);
-      else
-          prwpolygon(n,pm);
-      for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-          m = mask_indices[j];
-          pm[m] += log(density(m,group[n]));
-          if (pm[m]>maxpm) maxpm = pm[m];
-      }
-      // LSE trick to avoid underflow
-      for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-          m = mask_indices[j];
-          sumpm += exp(pm[m] - maxpm); 
-      }
-      lnprwi = maxpm + log(sumpm);
-       return lnprwi;    
-  }
-  
-  // function call operator that works for the specified range (begin/end)
-  void operator()(std::size_t begin, std::size_t end) {
-      for (std::size_t n = begin; n < end; n++) {
-          output[n] = onehistorycpp (n);
-      }
-  }
+    //--------------------------------------------------------------------------
+    
+    // hazard (fn 14:19) (distance)
+    double zcpp (const int j, const int m, const int c, const RMatrix<double> &gsbval, 
+                 const RMatrix<double> &xy, const RMatrix<double> &mask)
+    {
+        double r, r2;
+        r2 = d2Rcpp(j, m, xy, mask);
+        if (detectfn == 14) {  // hazard halfnormal
+            return (gsbval(c,0) *  exp(-r2 / 2 / gsbval(c,1) / gsbval(c,1)));    
+        }
+        else {
+            r = std::sqrt(r2);
+            if (detectfn == 15) {  // hazard hazard rate
+                return (gsbval(c,0) * ( 1 - exp(- pow(r /gsbval(c,1), - gsbval(c,2)))));
+            }
+            else if (detectfn == 16) {  // hazard exponential
+                return (gsbval(c,0) * exp(-r / gsbval(c,1)));
+            }
+            else if (detectfn == 17) {  // hazard annular normal
+                return (gsbval(c,0) * exp(-(r-gsbval(c,2))*(r-gsbval(c,2)) / 
+                        2 / gsbval(c,1)/ gsbval(c,1)));
+            }
+            else if (detectfn == 18) {  // hazard cumulative gamma
+                //return (gsbval(c,0) * R::pgamma(r,gsbval(c,2),gsbval(c,1)/gsbval(c,2),0,0)); 
+                boost::math::gamma_distribution<> gam(gsbval(c,2),gsbval(c,1)/gsbval(c,2));
+                return (gsbval(c,0) * boost::math::cdf(complement(gam,r))); 
+            }
+            else if (detectfn == 19) {  // hazard variable power
+                return (gsbval(c,0) * exp(- pow(r /gsbval(c,1), gsbval(c,2))));
+            }
+            else (Rcpp::stop("unknown or invalid detection function"));
+        }
+    }
+    
+    void prwpolygonX (const int n, std::vector<double> &pm) {
+        // Likelihood component due to capture history n (0 <= n < nc)
+        // given that animal's range centre is at m
+        // EXCLUSIVE POLYGON DETECTOR
+        {
+            int s;   // index of occasion  0 <= s < ss  
+            int k;   // index of part 0 <= k < nk  
+            int c, j, m, w2, w3, gi;
+            int m_row = mask_id[n];
+
+            double hint, Tski, Htemp;
+            bool dead = false;
+            for (s = 0; s < ss; s++) {   // over occasions
+                w2 = s * nc + n;
+                k = w[w2]; 
+                dead = k < 0;  
+                k = abs(k)-1;         // detector number 0..nk-1; k = -1 if not caught 
+                // Not found at any detector on occasion s 
+                if (k < 0) {
+                    for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                        m = mask_indices[j];
+                        Htemp = h(m, hindex(n,s));
+                        pm[m] = exp(-Htemp);
+                    }
+                }
+                // detected at detector k on occasion s
+                else {
+                    w3 = i3(n, s, k, nc, ss);   
+                    c = PIA[w3] - 1;
+                    if (c >= 0) {    // ignore unused detectors 
+                        Tski = Tsk(k,s);
+                        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                            m = mask_indices[j];
+                            gi  = i3(c,k,m,cc,nk);
+                            Htemp = h(m, hindex(n,s));
+                            pm[m] *=  Tski * (1-exp(-Htemp)) *  hk[gi] / Htemp;
+                            // for each detection, pdf(xy) | detected 
+                            if (pm[m] > minp) {               // avoid underflow 
+                                // retrieve hint = integral2D(zfn(x) over k)) 
+                                hint = hk[gi] / gsbval(c,0) * H[c];  
+                                pm[m] *= zcpp(start[w3], m, c, gsbval, xy, mask) / hint;
+                            }
+                        }
+                    }
+                }
+                if (dead) break;   // out of s loop
+            }
+        }
+    }    
+    //==============================================================================
+    void prwpolygon (const int n, std::vector<double> &pm) {
+        // Likelihood component due to capture history n (0 <= n < nc)
+        // given that animal's range centre is at m
+        // POLYGON DETECTOR
+        {
+            int s;   // index of occasion  0 <= s < ss  
+            int k;   // index of part 0 <= k < nk  
+            int jxy; // index of xy record 
+            int c, j, m, w3, gi;
+            int m_row = mask_id[n];
+
+            long count;
+            bool dead = false;
+            double hint;
+            double Tski;
+            if (debug>0) Rprintf("starting prwpolygon\n");
+            for (s=0; s<ss; s++) {  // over occasions
+                if (binomN[s] < 0) Rcpp::stop ("negative binomN < 0 not allowed in C++ fn prwpolygon");
+                for (k=0; k<nk; k++) {   // over polygons
+                    w3 = i3(n,s,k,nc,ss);
+                    count = w[w3];
+                    dead = count<0;
+                    count = abs(count);
+                    c = PIA[w3] - 1;
+                    if (c >= 0) {                          // skip if this polygon not used 
+                        Tski = Tsk(k,s);
+                        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                            m = mask_indices[j];
+                            if (debug>0) Rprintf("k %d, m %d \n", k,m);
+                            gi  = i3(c,k,m,cc,nk);
+                            pm[m] *= pski(binomN[s], count, Tski, hk[gi], 1.0);
+                            
+                            // for each detection, pdf(xy) | detected 
+                            if ((pm[m] > minp) && (count>0)) {       // avoid underflow
+                                // retrieve hint = integral2D(zfn(x) over k)) OR 1-D integral
+                                hint = hk[gi] / gsbval(c,0) * H[c];  
+                                for (jxy=start[w3]; jxy < start[w3]+count; jxy++) {
+                                    pm[m] *= zcpp(jxy, m, c, gsbval, xy, mask) / hint;
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+                if (dead==1) break;
+            }
+        }
+    }    
+    //==============================================================================
+    double onehistorycpp (int n) {
+        double lnprwi;
+        double maxpm = -huge;
+        double sumpm = 0.0;
+        int j,m;
+        int m_row = mask_id[n];
+        std::vector<double> pm(mm, 1.0);
+        
+        if (binomN[0] < 0)
+            prwpolygonX(n,pm);
+        else
+            prwpolygon(n,pm);
+        
+        if (safeLL) {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                pm[m] *= density(m,group[n]);
+                pm[m] = log(pm[m]);
+                if (pm[m]>maxpm) maxpm = pm[m];
+            }
+            // LSE trick to avoid underflow
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += exp(pm[m] - maxpm); 
+            }
+            lnprwi = maxpm + log(sumpm);
+        }
+        else {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += pm[m] * density(m,group[n]);
+            }
+            lnprwi = log(sumpm);
+            
+        }
+        return lnprwi;    
+    }
+    
+    // function call operator that works for the specified range (begin/end)
+    void operator()(std::size_t begin, std::size_t end) {
+        for (std::size_t n = begin; n < end; n++) {
+            output[n] = onehistorycpp (n);
+        }
+    }
 };
 
 // [[Rcpp::export]]
 NumericVector polygonhistories2cpp (
-    const int           nc,
-    const int           detectfn,
-    const int           grain,
-    const int           ncores,
-    const double        minp,
+        const int           nc,
+        const int           detectfn,
+        const int           grain,
+        const int           ncores,
+        const bool          safeLL,
+        
+        const double        minp,
+        const IntegerVector binomN,
+        const IntegerVector w,
+        const NumericMatrix xy,
+        const IntegerVector start,
+        
+        const IntegerVector group,
+        const NumericVector hk,
+        const NumericVector H,
+        const NumericMatrix gsbval,
+        const NumericMatrix pID,
+        
+        const NumericMatrix mask,
+        const NumericMatrix density,
+        const IntegerVector PIA,
+        const NumericMatrix Tsk,
+        const NumericMatrix h,
+        
+        const IntegerMatrix hindex,
+        const IntegerVector mask_indices,
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,       
+        const int           debug
+) {
     
-    const IntegerVector binomN,
-    const IntegerVector w,
-    const NumericMatrix xy,
-    const IntegerVector start,
-    const IntegerVector group,
-    
-    const NumericVector hk,
-    const NumericVector H,
-    const NumericMatrix gsbval,
-    const NumericMatrix pID,
-    const NumericMatrix mask,
-    
-    const NumericMatrix density,
-    const IntegerVector PIA,
-    const NumericMatrix Tsk,
-    const NumericMatrix h,
-    const IntegerMatrix hindex,
-    const IntegerVector mask_indices,
-    const IntegerVector mask_offsets,
-    const IntegerVector mask_id,       // Maps individual to mask row
-    
-    const int           debug
-    ) {
-  
-  NumericVector output(nc);
-  
-  if (debug>0 && ncores==1) Rprintf("starting polygonhistories2cpp\n");
+    NumericVector output(nc);
 
-  // Construct and initialise
-  polygonhistories2 somehist (nc, detectfn, grain, minp, binomN, w, xy,
-                             start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
-                             mask_indices, mask_offsets, mask_id, 
-                             debug, output);
-  
-  if (ncores>1) {
-      // Run operator() on multiple threads
-      parallelFor(0, nc, somehist, grain, ncores);
-  }
-  else {
-      // for debugging avoid multithreading and allow R calls e.g. Rprintf
-      somehist.operator()(0,nc);
-  }
-  // Return consolidated result
-  // log scale 2026-06-09
-  return output;
+    if (debug>0 && ncores==1) Rprintf("starting polygonhistories2cpp\n");
+    
+    // Construct and initialise
+    polygonhistories2 somehist (nc, detectfn, grain, safeLL, minp, binomN, w, xy,
+                                start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
+                                mask_indices, mask_offsets, mask_id, 
+                                debug, output);
+    
+    if (ncores>1) {
+        // Run operator() on multiple threads
+        parallelFor(0, nc, somehist, grain, ncores);
+    }
+    else {
+        // for debugging avoid multithreading and allow R calls e.g. Rprintf
+        somehist.operator()(0,nc);
+    }
+    // Return consolidated result
+    // log scale 2026-06-09
+    return output;
 }
 //==============================================================================
