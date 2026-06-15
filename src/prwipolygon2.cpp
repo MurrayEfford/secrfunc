@@ -71,7 +71,7 @@ struct polygonhistories2 : public Worker {
         const int           debug,
         NumericVector output)
         :
-        mm(mm), nc(nc), detectfn(detectfn), grain(grain), safeLL(safeLL), minp(minp), 
+        nc(nc), detectfn(detectfn), grain(grain), safeLL(safeLL), minp(minp), 
         binomN(binomN), w(w), xy(xy), start(start), group(group), hk(hk), H(H), gsbval(gsbval), 
         pID(pID), mask(mask), density(density), PIA(PIA), Tsk(Tsk),  h(h), hindex(hindex), 
         mask_indices(mask_indices), 
