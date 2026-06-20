@@ -83,8 +83,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // polygonhistories2cpp
-NumericVector polygonhistories2cpp(const int nc, const int detectfn, const int grain, const int ncores, const bool safeLL, const double minp, const IntegerVector binomN, const IntegerVector w, const NumericMatrix xy, const IntegerVector start, const IntegerVector group, const NumericVector hk, const NumericVector H, const NumericMatrix gsbval, const NumericMatrix pID, const NumericMatrix mask, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id, const int debug);
-RcppExport SEXP _secrfunc_polygonhistories2cpp(SEXP ncSEXP, SEXP detectfnSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP minpSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP xySEXP, SEXP startSEXP, SEXP groupSEXP, SEXP hkSEXP, SEXP HSEXP, SEXP gsbvalSEXP, SEXP pIDSEXP, SEXP maskSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP, SEXP debugSEXP) {
+NumericVector polygonhistories2cpp(const int nc, const int detectfn, const int grain, const int ncores, const bool safeLL, const bool uselog, const double minp, const IntegerVector binomN, const IntegerVector w, const NumericMatrix xy, const IntegerVector start, const IntegerVector group, const NumericVector hk, const NumericVector H, const NumericMatrix gsbval, const NumericMatrix pID, const NumericMatrix mask, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id, const int debug);
+RcppExport SEXP _secrfunc_polygonhistories2cpp(SEXP ncSEXP, SEXP detectfnSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP uselogSEXP, SEXP minpSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP xySEXP, SEXP startSEXP, SEXP groupSEXP, SEXP hkSEXP, SEXP HSEXP, SEXP gsbvalSEXP, SEXP pIDSEXP, SEXP maskSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP, SEXP debugSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -93,6 +93,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type grain(grainSEXP);
     Rcpp::traits::input_parameter< const int >::type ncores(ncoresSEXP);
     Rcpp::traits::input_parameter< const bool >::type safeLL(safeLLSEXP);
+    Rcpp::traits::input_parameter< const bool >::type uselog(uselogSEXP);
     Rcpp::traits::input_parameter< const double >::type minp(minpSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type w(wSEXP);
@@ -113,7 +114,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector >::type mask_offsets(mask_offsetsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type mask_id(mask_idSEXP);
     Rcpp::traits::input_parameter< const int >::type debug(debugSEXP);
-    rcpp_result_gen = Rcpp::wrap(polygonhistories2cpp(nc, detectfn, grain, ncores, safeLL, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug));
+    rcpp_result_gen = Rcpp::wrap(polygonhistories2cpp(nc, detectfn, grain, ncores, safeLL, uselog, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -152,7 +153,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secrfunc_hdotpolycpp", (DL_FUNC) &_secrfunc_hdotpolycpp, 11},
     {"_secrfunc_makegkPolygoncpp", (DL_FUNC) &_secrfunc_makegkPolygoncpp, 9},
     {"_secrfunc_polygonhistoriescpp", (DL_FUNC) &_secrfunc_polygonhistoriescpp, 21},
-    {"_secrfunc_polygonhistories2cpp", (DL_FUNC) &_secrfunc_polygonhistories2cpp, 25},
+    {"_secrfunc_polygonhistories2cpp", (DL_FUNC) &_secrfunc_polygonhistories2cpp, 26},
     {"_secrfunc_polygonfxicpp", (DL_FUNC) &_secrfunc_polygonfxicpp, 20},
     {NULL, NULL, 0}
 };

@@ -69,16 +69,30 @@ mask_indices <- 0:(m-1)
 mask_offsets <- c(0,m)
 mask_id      <- rep(0,nc)
 safeLL       <- FALSE
+uselog       <- FALSE
 
 test_that("correctly computed log(prw)", {
     lnprw <- polygonhistories2cpp(
-        nc, detectfn, grain, ncores, safeLL, minp, binomN, w, xy, start, 
+        nc, detectfn, grain, ncores, safeLL, uselog, minp, binomN, w, xy, start, 
         group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
         mask_indices, mask_offsets, mask_id,
         debug)
     expect_equal(lnprw, log(c(0.00267240, 0.00407618, 0.02350034, 0.02881529, 0.00893066,
-                        0.01947464, 0.00730938, 0.01595762, 0.02161582, 0.00832001,
-                        0.02531177)), tolerance = 1e-5, check.attributes = FALSE)
+                              0.01947464, 0.00730938, 0.01595762, 0.02161582, 0.00832001,
+                              0.02531177)), tolerance = 1e-5, check.attributes = FALSE)
+})
+
+uselog <- TRUE
+
+test_that("correctly computed log(prw) (uselog)", {
+    lnprw <- polygonhistories2cpp(
+        nc, detectfn, grain, ncores, safeLL, uselog, minp, binomN, w, xy, start, 
+        group, gkhk$hk, gkhk$H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
+        mask_indices, mask_offsets, mask_id,
+        debug)
+    expect_equal(lnprw, log(c(0.00267240, 0.00407618, 0.02350034, 0.02881529, 0.00893066,
+                              0.01947464, 0.00730938, 0.01595762, 0.02161582, 0.00832001,
+                              0.02531177)), tolerance = 1e-5, check.attributes = FALSE)
 })
 
 test_that("correctly computed fxi", {

@@ -13,8 +13,8 @@ polygonhistoriescpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy
     .Call(`_secrfunc_polygonhistoriescpp`, nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, debug)
 }
 
-polygonhistories2cpp <- function(nc, detectfn, grain, ncores, safeLL, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug) {
-    .Call(`_secrfunc_polygonhistories2cpp`, nc, detectfn, grain, ncores, safeLL, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug)
+polygonhistories2cpp <- function(nc, detectfn, grain, ncores, safeLL, uselog, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug) {
+    .Call(`_secrfunc_polygonhistories2cpp`, nc, detectfn, grain, ncores, safeLL, uselog, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, debug)
 }
 
 polygonfxicpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex) {

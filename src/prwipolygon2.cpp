@@ -15,6 +15,7 @@ struct polygonhistories2 : public Worker {
     const int             detectfn;
     const int             grain;
     const bool            safeLL;
+    const bool            uselog;
     const double          minp;
     const RVector<int>    binomN;   // s
     const RVector<int>    w;        // n x s x k
@@ -49,6 +50,7 @@ struct polygonhistories2 : public Worker {
         const int           detectfn,
         const int           grain,
         const bool          safeLL, 
+        const bool          uselog,
         const double        minp,
         const IntegerVector binomN,
         const IntegerVector w,
@@ -71,9 +73,27 @@ struct polygonhistories2 : public Worker {
         const int           debug,
         NumericVector output)
         :
-        nc(nc), detectfn(detectfn), grain(grain), safeLL(safeLL), minp(minp), 
-        binomN(binomN), w(w), xy(xy), start(start), group(group), hk(hk), H(H), gsbval(gsbval), 
-        pID(pID), mask(mask), density(density), PIA(PIA), Tsk(Tsk),  h(h), hindex(hindex), 
+        nc(nc), 
+        detectfn(detectfn), 
+        grain(grain), 
+        safeLL(safeLL),         
+        uselog(uselog),
+        minp(minp), 
+        binomN(binomN), 
+        w(w), 
+        xy(xy), 
+        start(start), 
+        group(group), 
+        hk(hk), 
+        H(H), 
+        gsbval(gsbval), 
+        pID(pID), 
+        mask(mask), 
+        density(density), 
+        PIA(PIA), 
+        Tsk(Tsk),  
+        h(h), 
+        hindex(hindex), 
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
@@ -148,7 +168,7 @@ struct polygonhistories2 : public Worker {
             int c, j, m, w2, w3, gi;
             int m_row = mask_id[n];
 
-            double hint, Tski, Htemp;
+            double hint, Tski, Htemp, psk;
             bool dead = false;
             for (s = 0; s < ss; s++) {   // over occasions
                 w2 = s * nc + n;
@@ -160,7 +180,18 @@ struct polygonhistories2 : public Worker {
                     for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                         m = mask_indices[j];
                         Htemp = h(m, hindex(n,s));
-                        pm[m] = exp(-Htemp);
+                        if (uselog) {
+                            if (Htemp>fuzz)
+                                pm[m] -= Htemp;    
+                            else
+                                pm[m] = -huge;
+                        }
+                        else {  
+                            if (Htemp>fuzz)
+                                pm[m] *= exp(-Htemp);
+                            else
+                                pm[m] = 0.0;
+                        }
                     }
                 }
                 // detected at detector k on occasion s
@@ -173,12 +204,31 @@ struct polygonhistories2 : public Worker {
                             m = mask_indices[j];
                             gi  = i3(c,k,m,cc,nk);
                             Htemp = h(m, hindex(n,s));
-                            pm[m] *=  Tski * (1-exp(-Htemp)) *  hk[gi] / Htemp;
-                            // for each detection, pdf(xy) | detected 
-                            if (pm[m] > minp) {               // avoid underflow 
-                                // retrieve hint = integral2D(zfn(x) over k)) 
-                                hint = hk[gi] / gsbval(c,0) * H[c];  
-                                pm[m] *= zcpp(start[w3], m, c, gsbval, xy, mask) / hint;
+                            psk = Tski * (1-exp(-Htemp)) *  hk[gi] / Htemp;
+                            if (uselog) {
+                                if (psk>0) {
+                                    pm[m] +=  log(psk);
+                                    // retrieve hint = integral2D(zfn(x) over k)) 
+                                    hint = hk[gi] / gsbval(c,0) * H[c];  
+                                    pm[m] += log(zcpp(start[w3], m, c, gsbval, xy, mask) / hint);
+                                }
+                                else {
+                                    pm[m] = -huge;
+                                }
+                            }
+                            else {
+                                if (psk>0) {
+                                    pm[m] *= psk;
+                                    // for each detection, pdf(xy) | detected 
+                                    if (pm[m] > minp) {               // avoid underflow 
+                                        // retrieve hint = integral2D(zfn(x) over k)) 
+                                        hint = hk[gi] / gsbval(c,0) * H[c];  
+                                        pm[m] *= zcpp(start[w3], m, c, gsbval, xy, mask) / hint;
+                                    }
+                                } 
+                                else {
+                                    pm[m] = 0.0;
+                                }
                             }
                         }
                     }
@@ -198,11 +248,12 @@ struct polygonhistories2 : public Worker {
             int jxy; // index of xy record 
             int c, j, m, w3, gi;
             int m_row = mask_id[n];
-
+            
             long count;
             bool dead = false;
             double hint;
             double Tski;
+            double psk;
             if (debug>0) Rprintf("starting prwpolygon\n");
             for (s=0; s<ss; s++) {  // over occasions
                 if (binomN[s] < 0) Rcpp::stop ("negative binomN < 0 not allowed in C++ fn prwpolygon");
@@ -218,15 +269,40 @@ struct polygonhistories2 : public Worker {
                             m = mask_indices[j];
                             if (debug>0) Rprintf("k %d, m %d \n", k,m);
                             gi  = i3(c,k,m,cc,nk);
-                            pm[m] *= pski(binomN[s], count, Tski, hk[gi], 1.0);
-                            
-                            // for each detection, pdf(xy) | detected 
-                            if ((pm[m] > minp) && (count>0)) {       // avoid underflow
-                                // retrieve hint = integral2D(zfn(x) over k)) OR 1-D integral
-                                hint = hk[gi] / gsbval(c,0) * H[c];  
-                                for (jxy=start[w3]; jxy < start[w3]+count; jxy++) {
-                                    pm[m] *= zcpp(jxy, m, c, gsbval, xy, mask) / hint;
+                            psk = pski(binomN[s], count, Tski, hk[gi], 1.0);
+                            if (uselog) {
+                                if (psk>0) {
+                                    pm[m] += log(psk);
+                                    // for each detection, pdf(xy) | detected 
+                                    if (count>0) {   
+                                        // retrieve hint = integral2D(zfn(x) over k)) OR 1-D integral
+                                        hint = hk[gi] / gsbval(c,0) * H[c];  
+                                        for (jxy=start[w3]; jxy < start[w3]+count; jxy++) {
+                                            pm[m] += log(zcpp(jxy, m, c, gsbval, xy, mask) / hint);
+                                            
+                                        }
+                                    }
+                                }
+                                else {
+                                    pm[m] = -huge;
+                                }
+                            }
+                            else {
+                                if (psk>0) {
+                                    pm[m] *= psk;
                                     
+                                    // for each detection, pdf(xy) | detected 
+                                    if ((pm[m] > minp) && (count>0)) {       // avoid underflow
+                                        // retrieve hint = integral2D(zfn(x) over k)) OR 1-D integral
+                                        hint = hk[gi] / gsbval(c,0) * H[c];  
+                                        for (jxy=start[w3]; jxy < start[w3]+count; jxy++) {
+                                            pm[m] *= zcpp(jxy, m, c, gsbval, xy, mask) / hint;
+                                            
+                                        }
+                                    }
+                                }
+                                else {
+                                    pm[m] = 0.0;
                                 }
                             }
                         }
@@ -243,7 +319,13 @@ struct polygonhistories2 : public Worker {
         double sumpm = 0.0;
         int j,m;
         int m_row = mask_id[n];
-        std::vector<double> pm(mm, 1.0);
+        std::vector<double> pm(mm);
+        if (uselog) {
+            std::fill(pm.begin(), pm.end(), 0.0);
+        }
+        else {
+            std::fill(pm.begin(), pm.end(), 1.0);
+        }
         
         if (binomN[0] < 0)
             prwpolygonX(n,pm);
@@ -253,8 +335,13 @@ struct polygonhistories2 : public Worker {
         if (safeLL) {
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                 m = mask_indices[j];
-                pm[m] *= density(m,group[n]);
-                pm[m] = log(pm[m]);
+                if (uselog) {
+                    pm[m] += log(density(m,group[n]));
+                }
+                else {
+                    pm[m] *= density(m,group[n]);
+                    pm[m] = log(pm[m]);
+                }
                 if (pm[m]>maxpm) maxpm = pm[m];
             }
             // LSE trick to avoid underflow
@@ -267,8 +354,15 @@ struct polygonhistories2 : public Worker {
         else {
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                 m = mask_indices[j];
-                sumpm += pm[m] * density(m,group[n]);
+                if (uselog) {
+                    pm[m] += log(density(m,group[n]));
+                    sumpm += exp(pm[m]);
+                }
+                else {
+                    sumpm += pm[m] * density(m,group[n]);   
+                }
             }
+            
             lnprwi = log(sumpm);
             
         }
@@ -290,6 +384,7 @@ NumericVector polygonhistories2cpp (
         const int           grain,
         const int           ncores,
         const bool          safeLL,
+        const bool          uselog,
         
         const double        minp,
         const IntegerVector binomN,
@@ -321,7 +416,7 @@ NumericVector polygonhistories2cpp (
     if (debug>0 && ncores==1) Rprintf("starting polygonhistories2cpp\n");
     
     // Construct and initialise
-    polygonhistories2 somehist (nc, detectfn, grain, safeLL, minp, binomN, w, xy,
+    polygonhistories2 somehist (nc, detectfn, grain, safeLL, uselog, minp, binomN, w, xy,
                                 start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, 
                                 mask_indices, mask_offsets, mask_id, 
                                 debug, output);
