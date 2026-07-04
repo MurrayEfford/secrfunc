@@ -30,6 +30,12 @@ struct polygonfxi : public Worker {
   // output likelihoods
   RMatrix<double> output;
   
+  // Workspace to hold thread-specific buffers
+  struct ThreadWorkspace {
+      std::vector<double> pm;
+      ThreadWorkspace(int mm) : pm(mm) {}
+  };
+  
   // Constructor to initialize an instance of Somehistories
   // The RMatrix class can be automatically converted to from the Rcpp matrix type
   polygonfxi(
@@ -116,7 +122,7 @@ struct polygonfxi : public Worker {
     }
   }
   
-  void prwpolygonXfxi (const int n, std::vector<double> &pm) {
+  void prwpolygonXfxi (const int n, ThreadWorkspace& ws) {
       // Likelihood component due to capture history n (0 <= n < nc)
       // given that animal's range centre is at m
       // EXCLUSIVE POLYGON DETECTOR
@@ -124,6 +130,7 @@ struct polygonfxi : public Worker {
           int s;   // index of occasion  0 <= s < ss  
           int k;   // index of part 0 <= k < nk  
           int c, m, w2, w3, gi;
+          std::vector<double>& pm = ws.pm; 
           double hint, Tski, Htemp;
           bool dead = false;
           for (s = 0; s < ss; s++) {   // over occasions
@@ -167,7 +174,7 @@ struct polygonfxi : public Worker {
       }
   }    
   //==============================================================================
-  void prwpolygonfxi (const int n, std::vector<double> &pm) {
+  void prwpolygonfxi (const int n, ThreadWorkspace& ws) {
       // Likelihood component due to capture history n (0 <= n < nc)
       // given that animal's range centre is at m
       // POLYGON DETECTOR
@@ -176,6 +183,8 @@ struct polygonfxi : public Worker {
           int k;   // index of part 0 <= k < nk  
           int j;   // index of xy record 
           int c, m, w3, gi;
+          std::vector<double>& pm = ws.pm; 
+          
           long count;
           bool dead = false;
           double hint;
@@ -211,7 +220,7 @@ struct polygonfxi : public Worker {
       }
   }    
   //==============================================================================
-  void prwtransectfxi (const int n, std::vector<double> &pm) {
+  void prwtransectfxi (const int n, ThreadWorkspace& ws) {
       // Likelihood component due to capture history n (0 <= n < nc)
       // given that animal's range centre is at m
       // TRANSECT DETECTOR
@@ -220,6 +229,7 @@ struct polygonfxi : public Worker {
           int k;   // index of part 0 <= k < nk  
           int j;   // index of xy record 
           int c, m, w3, gi;
+          std::vector<double>& pm = ws.pm; 
           long count;
           bool dead = false;
           double hint;
@@ -256,12 +266,13 @@ struct polygonfxi : public Worker {
   }    
   //==============================================================================
   
-  std::vector<double> onehistorymm (int n) {
-      std::vector<double> pm(mm, 1.0);
+  std::vector<double> onehistorymm (int n, ThreadWorkspace& ws) {
+      std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+      std::vector<double>& pm = ws.pm; 
       if (binomN[0] < 0)
-          prwpolygonXfxi(n,pm);
+          prwpolygonXfxi(n,ws);
       else
-          prwpolygonfxi(n,pm);
+          prwpolygonfxi(n,ws);
       for (int m=0; m<mm; m++) {
           pm[m] *= density(m,group[n]);
       }
@@ -271,9 +282,11 @@ struct polygonfxi : public Worker {
   
   // function call operator that works for the specified range (begin/end)
   void operator()(std::size_t begin, std::size_t end) {
-      std::vector<double> pm(mm, 1.0);
+      // Dynamically allocate one workspace per thread chunk execution
+      ThreadWorkspace ws(mm);
+      std::vector<double> pm(mm);
       for (std::size_t n = begin; n < end; n++) {
-          pm = onehistorymm (n);
+          pm = onehistorymm (n, ws);
           for (int m=0; m<mm; m++) output(n,m) = pm[m];
       }
   }

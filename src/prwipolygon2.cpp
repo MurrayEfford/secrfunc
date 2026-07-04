@@ -39,6 +39,12 @@ struct polygonhistories2 : public Worker {
     
     RVector<double> output;              // output likelihoods
     
+    // Workspace to hold thread-specific buffers
+    struct ThreadWorkspace {
+        std::vector<double> pm;
+        ThreadWorkspace(int mm) : pm(mm) {}
+    };
+    
     // working variables
     int  mm, nk, ss, cc;
     
@@ -158,7 +164,7 @@ struct polygonhistories2 : public Worker {
         }
     }
     
-    void prwpolygonX (const int n, std::vector<double> &pm) {
+    void prwpolygonX (const int n, ThreadWorkspace& ws) {
         // Likelihood component due to capture history n (0 <= n < nc)
         // given that animal's range centre is at m
         // EXCLUSIVE POLYGON DETECTOR
@@ -167,7 +173,8 @@ struct polygonhistories2 : public Worker {
             int k;   // index of part 0 <= k < nk  
             int c, j, m, w2, w3, gi;
             int m_row = mask_id[n];
-
+            std::vector<double>& pm = ws.pm; 
+            
             double hint, Tski, Htemp, psk;
             bool dead = false;
             for (s = 0; s < ss; s++) {   // over occasions
@@ -238,7 +245,7 @@ struct polygonhistories2 : public Worker {
         }
     }    
     //==============================================================================
-    void prwpolygon (const int n, std::vector<double> &pm) {
+    void prwpolygon (const int n, ThreadWorkspace& ws) {
         // Likelihood component due to capture history n (0 <= n < nc)
         // given that animal's range centre is at m
         // POLYGON DETECTOR
@@ -248,6 +255,7 @@ struct polygonhistories2 : public Worker {
             int jxy; // index of xy record 
             int c, j, m, w3, gi;
             int m_row = mask_id[n];
+            std::vector<double>& pm = ws.pm; 
             
             long count;
             bool dead = false;
@@ -313,24 +321,25 @@ struct polygonhistories2 : public Worker {
         }
     }    
     //==============================================================================
-    double onehistorycpp (int n) {
+    double onehistorycpp (int n, ThreadWorkspace& ws) {
         double lnprwi;
         double maxpm = -huge;
         double sumpm = 0.0;
         int j,m;
         int m_row = mask_id[n];
-        std::vector<double> pm(mm);
+        
         if (uselog) {
-            std::fill(pm.begin(), pm.end(), 0.0);
+            std::fill(ws.pm.begin(), ws.pm.end(), 0.0);
         }
         else {
-            std::fill(pm.begin(), pm.end(), 1.0);
+            std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
         }
+        std::vector<double>& pm = ws.pm;
         
         if (binomN[0] < 0)
-            prwpolygonX(n,pm);
+            prwpolygonX(n,ws);
         else
-            prwpolygon(n,pm);
+            prwpolygon(n,ws);
         
         if (safeLL) {
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
@@ -371,8 +380,10 @@ struct polygonhistories2 : public Worker {
     
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {
+        // Dynamically allocate one workspace per thread chunk execution
+        ThreadWorkspace ws(mm);
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onehistorycpp (n);
+            output[n] = onehistorycpp (n, ws);
         }
     }
 };
