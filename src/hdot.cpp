@@ -43,9 +43,9 @@ struct hdotpoly : public Worker {
           cumk(cumk), markocc(markocc), trapsR(traps), xyR(xy), TskR(Tsk), 
           hdot(hdot) {
         
-        nk = cumk.size()-1;   // zero terminated so ignore last
         npar = gsb.size();
         ss = Tsk.ncol();
+        nk = Tsk.nrow(); 
         
         for (int s=0; s<ss; s++) {
             if (markocc[s]>0) allsighting = false;                    // capture occasions 
