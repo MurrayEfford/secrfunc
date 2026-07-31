@@ -68,7 +68,7 @@ traps <- matrix(c(0,0,1,1,0,0,1,1,0,0), ncol = 2) - 0.5
 
 Tsk <- matrix(1, nrow = 1, ncol = 5)
 markocc <- rep(1,5)
-cumk <- c(0,5,0)   # zero-terminated
+cumk <- c(0,5)
 detectfn <- 14   # hazard half-normal
 gsb <- c(lambda0 = 0.2, sigma = 0.5)
 
