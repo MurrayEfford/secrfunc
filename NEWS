@@ -1,4 +1,4 @@
-Changes in version 1.1.2 (2026-06-20)
+Changes in version 1.1.2 (2026-08-01)
 
 Other
     o   polygonhistories2cpp is variant of polygonhistoriescpp that 
@@ -6,6 +6,9 @@ Other
     o   improved thread and LSE algorithms in C++
     o   uselog option 
     
+Bugs fixed
+    o   invalid read in hdot.cpp due to bad cumk input in example
+
 Changes in version 1.0.0 (2025-11-26)
 
 New features or changed behaviour of old functions
