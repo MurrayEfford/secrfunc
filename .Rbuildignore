@@ -10,3 +10,5 @@ extracpp
 extraman
 README.md
 ^\.github$
+^\.positai$
+^\.claude$

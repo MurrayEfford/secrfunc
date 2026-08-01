@@ -10,3 +10,4 @@ src/*.dll
 ^secrpoly.Rproj$
 proposal.txt
 *.Rproj
+.positai
