@@ -4,6 +4,7 @@ library(secrfunc)
 ## to avoid ASAN/UBSAN errors on CRAN, following advice of Kevin Ushey
 ## e.g. https://github.com/RcppCore/RcppParallel/issues/169
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
+Sys.setenv("OMP_THREAD_LIMIT" = 2)
 
 ###############################################################################
 ## 
