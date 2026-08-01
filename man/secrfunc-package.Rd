@@ -25,7 +25,7 @@ This package provides some functions used internally by the spatial
 \tabular{ll}{
 Package: \tab secrfunc\cr
 Type: \tab Package\cr
-Version: \tab 1.1.2\cr
+Version: \tab 1.1.3\cr
 Date: \tab 2026-08-01\cr
 License: \tab GNU General Public License Version 2 or later\cr
 }
