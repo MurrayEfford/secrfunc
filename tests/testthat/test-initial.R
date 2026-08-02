@@ -1,10 +1,12 @@
 ## Started 2025-11-25
 library(secrfunc)
-#library(testthat)
+# library(testthat)
+
+Sys.setenv(RCPP_PARALLEL_NUM_THREADS = 2)
+
 ## to avoid ASAN/UBSAN errors on CRAN, following advice of Kevin Ushey
 ## e.g. https://github.com/RcppCore/RcppParallel/issues/169
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
-Sys.setenv("OMP_THREAD_LIMIT" = 2)
 
 ###############################################################################
 ## 
@@ -104,3 +106,4 @@ test_that("correctly computed fxi", {
 })
 
 ###############################################################################
+
