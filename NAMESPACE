@@ -1,6 +1,9 @@
 import (RcppNumerical)
 importFrom (RcppParallel, 
-    RcppParallelLibs)
+    RcppParallelLibs,
+    defaultNumThreads,
+    setThreadOptions
+    )
 importFrom (Rcpp, 
     evalCpp)
 export(hdotpolycpp)
